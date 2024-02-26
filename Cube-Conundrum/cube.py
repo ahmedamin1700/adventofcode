@@ -44,6 +44,30 @@ def count_valid_ids(plays):
             count += i + 1
     return count
 
+def power_of_cubes(plays):
+    result = 0
+
+    for i, game in enumerate(plays):
+        colors = {
+            "red": 1,
+            "green": 1,
+            "blue": 1
+        }
+        total = 1
+
+        for trial in game:
+            for entry in trial:
+                if colors[entry[1]] < int(entry[0]):
+                    colors[entry[1]] = int(entry[0])
+        
+        for value in colors.values():
+            total *= value
+        
+        result += total
+
+    return result
+
 
 games = generate_games(lines)
 result = count_valid_ids(games)
+powerofcubes = power_of_cubes(games)
