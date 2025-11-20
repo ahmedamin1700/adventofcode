@@ -95,17 +95,53 @@ class Map:
 
         return len(reached_nines)
 
+    def calculate_trailhead_rating(self, start_coords: Tuple[int, int]):
+        """Count how many time to reach to 9s from this trailhead.
+
+        Args:
+            start_coords (Tuple[int, int]):
+
+        Returns:
+            int: how many 9s found from this start_coords.
+        """
+        MEMO = {}
+
+        def count_paths_from(current_coords: Tuple[int, int]):
+            current_height = self.map[current_coords[0]][current_coords[1]]
+
+            if current_height == 9:
+                return 1
+
+            if current_coords in MEMO:
+                return MEMO[current_coords]
+
+            total_paths_from_here = 0
+            valid_neighbors = self.find_valid_hiking_neighbors(current_coords)
+
+            for neighbor in valid_neighbors:
+                total_paths_from_here += count_paths_from(neighbor)
+
+            MEMO[current_coords] = total_paths_from_here
+
+            return total_paths_from_here
+
+        return count_paths_from(start_coords)
+
 
 def main():
-    map = Map("day-10/test.txt")
+    map = Map("day-10/input.txt")
 
     total = 0
+    rating = 0
 
     for trial in map.trialheads:
         score = map.calculate_trailhead_score(trial)
         total += score
+        rate = map.calculate_trailhead_rating(trial)
+        rating += rate
 
     print(total)
+    print(rating)
 
 
 if __name__ == "__main__":
