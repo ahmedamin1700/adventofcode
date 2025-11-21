@@ -1,40 +1,40 @@
-def blink(line: list[int], times: int) -> int:
-    current_state = line
-    print("Initial arrangement:")
-    print_line(current_state)
-    for t in range(times):
-        blinked = []
-        for num in current_state:
-            if num == 0:
-                blinked.append(1)
-            elif len(str(num)) % 2 == 0:
-                num_str = str(num)
-                length = len(num_str)
-                half = length / 2
-
-                blinked.append(int(num_str[: int(half)]))
-                blinked.append(int(num_str[int(half) :]))
-            else:
-                blinked.append(num * 2024)
-        current_state = blinked
-        print(f"After {t + 1} blink{'s' if t + 1 > 1 else ''}:")
-        print_line(current_state)
-    return len(current_state)
+from functools import cache
 
 
-def print_line(line: list[int]):
-    for num in line:
-        print(num, " ", end="")
-    print()
+@cache
+def count(stone: int, times: int):
+    if times == 0:
+        return 1
+    elif stone == 0:
+        return count(1, times - 1)
+    string = str(stone)
+    length = len(string)
+    if length % 2 == 0:
+        return count(int(string[: length // 2]), times - 1) + count(
+            int(string[length // 2 :]), times - 1
+        )
+    return count(stone * 2024, times - 1)
+
+
+def blink(stones: list[int], times: int) -> int:
+    return sum(count(stone, times) for stone in stones)
 
 
 def main():
     filename = "day-11/test.txt"
-    with open(filename, "r") as file:
-        line = [int(num) for num in file.readlines()[0].strip().split(" ")]
+    try:
+        with open(filename, "r") as file:
+            line_str = file.read().strip().replace("\n", " ").split()
+            line = [int(num) for num in line_str if num]
 
-    stones_num = blink(line, 25)
-    print(f"\nafter 25 blinks found {stones_num} stones.")
+        stones_num = blink(line, 75)
+        print(f"\nafter final blinks found {stones_num} stones.")
+    except FileNotFoundError:
+        print(f"Error: the file name {filename} not found.")
+    except MemoryError:
+        print("Memory error: The list became too large for your system RAM.")
+    except Exception as e:
+        print(f"An error occurred: {e}")
 
 
 if __name__ == "__main__":
